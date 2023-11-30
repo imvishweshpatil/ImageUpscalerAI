@@ -1,45 +1,19 @@
 "use client";
 import React, { useState, useRef } from 'react';
 import Upscaler from 'upscaler';
-import CircularProgress, { CircularProgressProps } from '@mui/material/CircularProgress';
-import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-
-const CircularProgressWithLabel = (
-    props: CircularProgressProps & { value: number }
-) => (
-    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-        <CircularProgress variant="determinate" {...props} />
-        <Box
-            sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-            <Typography variant="caption" component="div" color="text.secondary">
-                {`${Math.round(props.value)}%`}
-            </Typography>
-        </Box>
-    </Box>
-);
+import Slider from '@mui/material/Slider';
 
 const Home: React.FC = () => {
     const [image, setImage] = useState<string | null>(null);
     const [upscaledImage, setUpscaledImage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isUpScaling, setIsUpScaling] = useState(false);
     const [patchSize, setPatchSize] = useState(16);
     const [padding, setPadding] = useState(2);
     const [spaceBetweenPatches, setSpaceBetweenPatches] = useState(2);
     const [row, setRow] = useState(0);
     const [col, setCol] = useState(0);
-    const [progress, setProgress] = useState(0);
-    const [isUpScaling, setIsUpScaling] = useState(false);
 
     const imgRef = useRef<HTMLImageElement>(null);
 
@@ -68,12 +42,11 @@ const Home: React.FC = () => {
             const upscaledImgSrc = await upscaler.upscale(image, {
                 patchSize,
                 padding,
-                /*spaceBetweenPatches,*/
                 progress: (patch, slice) => {
                     const cell = document.createElement('td');
                     const sliceImg = new Image();
                     sliceImg.src = slice;
-                    sliceImg.alt = "Patch ${patch.row}-${patch.col}";
+                    sliceImg.alt ="Patch ${patch.row}-${patch.col}";
                     sliceImg.title = "Patch ${patch.row}-${patch.col}";
                     cell.appendChild(sliceImg);
 
@@ -88,11 +61,6 @@ const Home: React.FC = () => {
                     } else {
                         currentRow.appendChild(cell);
                     }
-
-                    // Update progress state
-                    setProgress((prevProgress) =>
-                        prevProgress >= 100 ? 0 : prevProgress + 10
-                    );
                 },
             });
 
@@ -133,55 +101,54 @@ const Home: React.FC = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                        }}
-                    >
+                        }}>
                         <img
                             ref={imgRef}
                             src={image}
                             alt="Original Image"
-                            style={{ maxWidth: '100%' }}
+                            style={{ maxWidth: '100%', margin:"25px" }}
                         />
                         <div>
                             <div>
                                 <label>Patch Size</label>
-                                <input
-                                    type="number"
-                                    min="0"
+                                <Slider
+                                    aria-label="Custom marks"
+                                    min={0}
+                                    max={128}
+                                    step={1}
                                     value={patchSize}
-                                    max="128"
-                                    step="1"
-                                    onChange={(e) => setPatchSize(parseInt(e.target.value))}
+                                    onChange={(e, value) => setPatchSize(value as number)}
+                                    valueLabelDisplay="auto"
                                 />
                             </div>
                             <div>
                                 <label>Padding</label>
-                                <input
-                                    type="number"
-                                    min="0"
+                                <Slider
+                                    min={0}
+                                    max={20}
+                                    step={1}
                                     value={padding}
-                                    max="20"
-                                    step="1"
-                                    onChange={(e) => setPadding(parseInt(e.target.value))}
+                                    onChange={(e, value) => setPadding(value as number)}
+                                    valueLabelDisplay="auto"
                                 />
                             </div>
                             <div>
                                 <label>Space Between Patches</label>
-                                <input
-                                    type="number"
-                                    min="0"
+                                <Slider
+                                    min={0}
+                                    max={40}
+                                    step={0.1}
                                     value={spaceBetweenPatches}
-                                    max="40"
-                                    step=".1"
-                                    onChange={(e) =>
-                                        setSpaceBetweenPatches(parseInt(e.target.value))
-                                    }
+                                    onChange={(e, value) => setSpaceBetweenPatches(value as number)}
+                                    valueLabelDisplay="auto"
                                 />
                             </div>
                         </div>
+
                         {isUpScaling ? (
-                            <CircularProgressWithLabel value={progress} />
+                            <CircularProgress style={{ display: "flex", alignItems:"center", justifyContent:"center", width:"100px" }} />
                         ) : (
-                            <button
+                            <div><button
                                 onClick={handleUpScale}
                                 style={{
                                     backgroundColor: 'black',
@@ -193,7 +160,7 @@ const Home: React.FC = () => {
                                 }}
                             >
                                 Upscale Image
-                            </button>
+                            </button></div>
                         )}
                     </div>
                 )}
@@ -209,9 +176,9 @@ const Home: React.FC = () => {
                         <img
                             src={upscaledImage}
                             alt="Upscaled Image"
-                            style={{ maxWidth: '100%' }}
+                            style={{ maxWidth: '100%', margin:"50px" }}
                         />
-                        <button
+                        <div><button
                             onClick={handleDownload}
                             style={{
                                 backgroundColor: 'black',
@@ -223,7 +190,7 @@ const Home: React.FC = () => {
                             }}
                         >
                             Download Image
-                        </button>
+                        </button></div>
                     </div>
                 )}
             </div>
