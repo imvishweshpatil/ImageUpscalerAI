@@ -4,6 +4,7 @@ import Upscaler from 'upscaler';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
+import "./globals.css";
 
 const Home: React.FC = () => {
     const [image, setImage] = useState<string | null>(null);
@@ -78,7 +79,7 @@ const Home: React.FC = () => {
 
     return (
         <main>
-            <div className="header">
+            <div className="Main">
                 <h1
                     style={{
                         display: 'flex',
@@ -98,11 +99,12 @@ const Home: React.FC = () => {
                 {image && (
                     <div
                         style={{
+                            backgroundImage: 'url("app/background.jpg")',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                        <img
+                        <img className='upscale-image'
                             ref={imgRef}
                             src={image}
                             alt="Original Image"
